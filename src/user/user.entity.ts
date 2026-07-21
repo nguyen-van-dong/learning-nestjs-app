@@ -2,10 +2,14 @@ import {
     Column,
     CreateDateColumn,
     Entity,
+    OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
+
 } from 'typeorm';
 import { UserRole } from './user-role.enum';
+import { Exclude } from 'class-transformer';
+import { EmailVerificationToken } from './email_verification_tokens.entity';
 
 @Entity({
     name: 'users',
@@ -30,8 +34,8 @@ export class User {
     @Column({
         type: 'varchar',
         length: 255,
-        select: false,
     })
+    @Exclude()
     password!: string;
 
     @Column({
@@ -39,12 +43,25 @@ export class User {
         enum: UserRole,
         default: UserRole.USER
     })
+    role!: string
 
     @Column({
         type: 'boolean',
-        default: true,
+        default: false,
     })
-    isActive!: boolean;
+    is_active!: boolean;
+
+    @Column({
+        type: 'timestamp',
+        nullable: true,
+    })
+    email_verified_at!: Date | null;
+
+    @OneToMany(
+        () => EmailVerificationToken,
+        (token) => token.user,
+    )
+    verification_tokens!: EmailVerificationToken[];
 
     @CreateDateColumn({
         name: 'created_at',
@@ -57,4 +74,10 @@ export class User {
         type: 'timestamptz',
     })
     updatedAt!: Date;
+}
+
+export enum UserStatus {
+    PENDING = 'pending',
+    ACTIVE = 'active',
+    SUSPENDED = 'suspended',
 }
