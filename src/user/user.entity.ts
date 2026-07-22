@@ -9,7 +9,7 @@ import {
 } from 'typeorm';
 import { UserRole } from './user-role.enum';
 import { Exclude } from 'class-transformer';
-import { EmailVerificationToken } from './email_verification_tokens.entity';
+import { EmailVerificationToken } from './email-verification-tokens.entity';
 
 @Entity({
     name: 'users',

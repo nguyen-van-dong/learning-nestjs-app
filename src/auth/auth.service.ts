@@ -5,8 +5,11 @@ import { User, UserStatus } from "src/user/user.entity";
 import { Repository } from "typeorm";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from 'bcrypt';
-import { EmailVerificationToken } from "src/user/email_verification_tokens.entity";
+import { EmailVerificationToken } from "src/user/email-verification-tokens.entity";
 import { createHash, randomBytes } from "crypto";
+import { EventEmitter2 } from "@nestjs/event-emitter";
+import { UserRegisteredEvent } from "./events/user-registered.event";
+import { APP_EVENTS } from "src/common/constants/event.constants";
 
 @Injectable()
 export class AuthService {
@@ -15,7 +18,8 @@ export class AuthService {
         private readonly userRepository: Repository<User>,
         @InjectRepository(EmailVerificationToken)
         private readonly emailVerificationRepository: Repository<EmailVerificationToken>,
-        private jwtService: JwtService
+        private jwtService: JwtService,
+        private eventEmitter: EventEmitter2
     ) { }
 
     async register(userDto: RegisterDTO) {
@@ -50,6 +54,7 @@ export class AuthService {
         await this.emailVerificationRepository.save(verifycationToken);
 
         // dispatch event to send email
+        this.eventEmitter.emit(APP_EVENTS.USER_REGISTERED, new UserRegisteredEvent(savedUser.id, savedUser.name, savedUser.email, rawToken));
 
         return {
             data: savedUser,

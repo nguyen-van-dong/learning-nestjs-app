@@ -7,7 +7,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { User } from 'src/user/user.entity';
-import { EmailVerificationToken } from 'src/user/email_verification_tokens.entity';
+import { EmailVerificationToken } from 'src/user/email-verification-tokens.entity';
+import { QUEUE_NAMES } from 'src/common/constants/queue.constants';
+import { BullModule } from '@nestjs/bullmq';
+import { UserRegisteredListener } from './listeners/user-registered.listener';
+import { MailModule } from 'src/mail/mail.module';
 
 @Module({
     imports: [
@@ -15,7 +19,6 @@ import { EmailVerificationToken } from 'src/user/email_verification_tokens.entit
             User,
             EmailVerificationToken,
         ]),
-
         JwtModule.registerAsync({
             global: true,
             imports: [ConfigModule],
@@ -27,8 +30,12 @@ import { EmailVerificationToken } from 'src/user/email_verification_tokens.entit
                 },
             }),
         }),
+        BullModule.registerQueue({
+            name: QUEUE_NAMES.MAIL,
+        }),
+        MailModule,
     ],
     controllers: [AuthController],
-    providers: [AuthService],
+    providers: [AuthService, UserRegisteredListener]
 })
 export class AuthModule { }
