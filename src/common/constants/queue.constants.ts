@@ -4,4 +4,5 @@ export const QUEUE_NAMES = {
 
 export const MAIL_JOBS = {
     SEND_VERIFY_ACCOUNT: 'send-verify-account',
+    SEND_RESET_PASSWORD: 'send-reset-password',
 } as const;

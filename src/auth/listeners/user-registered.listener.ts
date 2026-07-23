@@ -49,7 +49,7 @@ export class UserRegisteredListener {
           age: 7 * 24 * 60 * 60,
         },
 
-        jobId: `verify-email-${event.userId}`,
+        jobId: `verify-email-${event.verificationTokenId}`,
       },
     );
 

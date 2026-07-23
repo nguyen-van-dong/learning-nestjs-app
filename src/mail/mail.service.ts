@@ -44,4 +44,27 @@ export class MailService {
       `,
     });
   }
+
+  async sendResetPasswordEmail(params: {
+    name: string;
+    email: string;
+    resetPasswordUrl: string;
+  }): Promise<void> {
+    await this.transporter.sendMail({
+      from: this.configService.getOrThrow<string>('MAIL_FROM'),
+      to: params.email,
+      subject: 'Reset your password',
+      html: `
+        <h2>Hello ${params.name}</h2>
+        <p>We received a request to reset your password.</p>
+        <p>
+          <a href="${params.resetPasswordUrl}">
+            Reset password
+          </a>
+        </p>
+        <p>This link will expire in 1 hour.</p>
+        <p>If you did not request this, you can ignore this email.</p>
+      `,
+    });
+  }
 }

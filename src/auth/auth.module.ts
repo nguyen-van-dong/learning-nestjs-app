@@ -12,12 +12,15 @@ import { QUEUE_NAMES } from 'src/common/constants/queue.constants';
 import { BullModule } from '@nestjs/bullmq';
 import { UserRegisteredListener } from './listeners/user-registered.listener';
 import { MailModule } from 'src/mail/mail.module';
+import { PasswordResetToken } from 'src/user/password-reset-token.entity';
+import { PasswordResetRequestedListener } from './listeners/password-reset-requested.listener';
 
 @Module({
     imports: [
         TypeOrmModule.forFeature([
             User,
             EmailVerificationToken,
+            PasswordResetToken,
         ]),
         JwtModule.registerAsync({
             global: true,
@@ -36,6 +39,10 @@ import { MailModule } from 'src/mail/mail.module';
         MailModule,
     ],
     controllers: [AuthController],
-    providers: [AuthService, UserRegisteredListener]
+    providers: [
+        AuthService,
+        UserRegisteredListener,
+        PasswordResetRequestedListener,
+    ]
 })
 export class AuthModule { }

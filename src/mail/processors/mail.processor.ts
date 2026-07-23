@@ -12,6 +12,7 @@ import {
     QUEUE_NAMES,
 } from '../../common/constants/queue.constants';
 import { SendVerificationEmailJob } from '../interfaces/send-verification-email-job.interface';
+import { SendResetPasswordEmailJob } from '../interfaces/send-reset-password-email-job.interface';
 import { MailService } from '../mail.service';
 
 @Processor(QUEUE_NAMES.MAIL)
@@ -28,11 +29,19 @@ export class MailProcessor extends WorkerHost {
     }
 
     async process(
-        job: Job<SendVerificationEmailJob>,
+        job: Job<SendVerificationEmailJob | SendResetPasswordEmailJob>,
     ): Promise<void> {
         switch (job.name) {
             case MAIL_JOBS.SEND_VERIFY_ACCOUNT:
-                await this.sendVerificationEmail(job);
+                await this.sendVerificationEmail(
+                    job as Job<SendVerificationEmailJob>,
+                );
+                return;
+
+            case MAIL_JOBS.SEND_RESET_PASSWORD:
+                await this.sendResetPasswordEmail(
+                    job as Job<SendResetPasswordEmailJob>,
+                );
                 return;
 
             default:
@@ -40,6 +49,23 @@ export class MailProcessor extends WorkerHost {
                     `Unsupported mail job: ${job.name}`,
                 );
         }
+    }
+
+    private async sendResetPasswordEmail(
+        job: Job<SendResetPasswordEmailJob>,
+    ): Promise<void> {
+        const frontendUrl =
+            this.configService.getOrThrow<string>('FRONTEND_URL');
+
+        const resetPasswordUrl =
+            `${frontendUrl}/reset-password` +
+            `?token=${encodeURIComponent(job.data.rawResetToken)}`;
+
+        await this.mailService.sendResetPasswordEmail({
+            name: job.data.name,
+            email: job.data.email,
+            resetPasswordUrl,
+        });
     }
 
     private async sendVerificationEmail(
