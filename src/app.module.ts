@@ -9,12 +9,28 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { BullModule } from '@nestjs/bullmq';
 import { BullBoardModule } from '@bull-board/nestjs';
 import { ExpressAdapter } from '@bull-board/express';
+import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
+import { QUEUE_NAMES } from './common/constants/queue.constants';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
+    }),
+    BullModule.forRoot({
+      connection: {
+        host: process.env.REDIS_HOST ?? 'localhost',
+        port: Number(process.env.REDIS_PORT ?? 6379),
+      },
+    }),
+    BullBoardModule.forRoot({
+      route: '/admin/queues',
+      adapter: ExpressAdapter,
+    }),
+    BullBoardModule.forFeature({
+      name: QUEUE_NAMES.MAIL,
+      adapter: BullMQAdapter,
     }),
     EventEmitterModule.forRoot(),
     TypeOrmModule.forRootAsync({
@@ -34,21 +50,6 @@ import { ExpressAdapter } from '@bull-board/express';
           logging: configService.get<string>('DB_LOGGING') === 'true',
         };
       },
-    }),
-    BullModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        connection: {
-          host: configService.get<string>('REDIS_HOST', 'localhost'),
-          port: +configService.get<number>('REDIS_PORT', 6379),
-          password:
-            configService.get<string>('REDIS_PASSWORD') || undefined,
-        },
-      }),
-    }),
-    BullBoardModule.forRoot({
-      route: '/admin/queues',
-      adapter: ExpressAdapter,
     }),
     AuthModule,
     UserModule,
