@@ -1,6 +1,8 @@
 import dataSource from '../data-source';
 import { seedRoles } from './role.seeder';
 import { seedAdmin } from './admin.seeder';
+import { seedPermissions } from './permission.seeder';
+import { seedRolePermissions } from './role-permission.seeder';
 
 async function seed(): Promise<void> {
   try {
@@ -8,6 +10,8 @@ async function seed(): Promise<void> {
 
     await seedRoles(dataSource);
     await seedAdmin(dataSource);
+    await seedPermissions(dataSource);
+    await seedRolePermissions(dataSource);
 
     console.log('Database seeded successfully');
   } catch (error) {
