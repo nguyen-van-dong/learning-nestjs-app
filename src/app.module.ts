@@ -11,6 +11,7 @@ import { BullBoardModule } from '@bull-board/nestjs';
 import { ExpressAdapter } from '@bull-board/express';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { QUEUE_NAMES } from './common/constants/queue.constants';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { QUEUE_NAMES } from './common/constants/queue.constants';
     }),
     AuthModule,
     UserModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],

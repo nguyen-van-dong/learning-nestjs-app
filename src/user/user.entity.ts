@@ -7,7 +7,6 @@ import {
     UpdateDateColumn,
 
 } from 'typeorm';
-import { UserRole } from './user-role.enum';
 import { Exclude } from 'class-transformer';
 import { EmailVerificationToken } from './email-verification-tokens.entity';
 
@@ -39,13 +38,6 @@ export class User {
     password!: string;
 
     @Column({
-        type: 'enum',
-        enum: UserRole,
-        default: UserRole.USER
-    })
-    role!: string
-
-    @Column({
         type: 'boolean',
         default: false,
     })
@@ -74,10 +66,4 @@ export class User {
         type: 'timestamptz',
     })
     updatedAt!: Date;
-}
-
-export enum UserStatus {
-    PENDING = 'pending',
-    ACTIVE = 'active',
-    SUSPENDED = 'suspended',
 }
