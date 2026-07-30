@@ -12,6 +12,7 @@ import { ExpressAdapter } from '@bull-board/express';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { QUEUE_NAMES } from './common/constants/queue.constants';
 import { AdminModule } from './admin/admin.module';
+import { AuditLogModule } from './audit-log/audit-log.module';
 
 @Module({
   imports: [
@@ -51,6 +52,17 @@ import { AdminModule } from './admin/admin.module';
           logging: configService.get<string>('DB_LOGGING') === 'true',
         };
       },
+    }),
+    AuditLogModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        enabled: configService.get<string>('AUDIT_LOG_ENABLED', 'true') === 'true',
+        failureMode: configService.get<'non-blocking' | 'strict'>(
+          'AUDIT_LOG_FAILURE_MODE',
+          'non-blocking',
+        ),
+        excludedRoutes: ['/api/auth/login', '/api/admin/auth/login'],
+      }),
     }),
     AuthModule,
     UserModule,

@@ -1,9 +1,7 @@
 import { DataSource } from 'typeorm';
 import { Permission } from 'src/user/permission.entity';
 
-export async function seedPermissions(
-  dataSource: DataSource,
-): Promise<void> {
+export async function seedPermissions(dataSource: DataSource): Promise<void> {
   const repository = dataSource.getRepository(Permission);
 
   await repository.upsert(
@@ -17,6 +15,7 @@ export async function seedPermissions(
       { name: 'permission.read', description: 'Read permission data' },
       { name: 'permission.update', description: 'Update permission data' },
       { name: 'permission.delete', description: 'Delete permission data' },
+      { name: 'audit-log.read', description: 'Read audit logs' },
     ],
     {
       conflictPaths: ['name'],
