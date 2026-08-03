@@ -9,7 +9,14 @@ export class UserController {
     constructor(private userService: UserService) {}
 
     @Get('me')
-    me(@Request() req) {
-        return req.user;
+    async me(@Request() req) {
+        const user = req.user;
+        if (!user) {
+            return null;
+        }
+        return {
+            message: 'User retrieved successfully',
+            data: await this.userService.findById(user.id),
+        }
     }
 }
