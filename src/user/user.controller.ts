@@ -9,10 +9,10 @@ export class UserController {
     constructor(private userService: UserService) {}
 
     @Get('me')
-    async me(@Request() req) {
+    async me(@Request() req): Promise<{ message: string, data: any }> {
         const user = req.user;
         if (!user) {
-            return null;
+            throw new Error('User not found');
         }
         return {
             message: 'User retrieved successfully',

@@ -13,6 +13,7 @@ import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { QUEUE_NAMES } from './common/constants/queue.constants';
 import { AdminModule } from './admin/admin.module';
 import { AuditLogModule } from './audit-log/audit-log.module';
+import { RateLimitModule } from './rate-limit';
 
 @Module({
   imports: [
@@ -62,6 +63,28 @@ import { AuditLogModule } from './audit-log/audit-log.module';
           'non-blocking',
         ),
         excludedRoutes: ['/api/auth/login', '/api/admin/auth/login'],
+      }),
+    }),
+    RateLimitModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        timezone: configService.get('RATE_LIMIT_TIMEZONE', 'Asia/Ho_Chi_Minh'),
+        failureMode: configService.get<'fail-open' | 'fail-closed'>(
+          'RATE_LIMIT_FAILURE_MODE',
+          'fail-open',
+        ),
+        systemLoadTimeoutMs: configService.get('RATE_LIMIT_LOAD_TIMEOUT_MS', 200),
+        systemLoadCacheTtlMs: configService.get(
+          'RATE_LIMIT_LOAD_CACHE_TTL_MS',
+          5000,
+        ),
+        debug: configService.get('RATE_LIMIT_DEBUG', 'false') === 'true',
+        redis: {
+          host: configService.get('REDIS_HOST', 'localhost'),
+          port: configService.get('REDIS_PORT', 6379),
+          password: configService.get<string>('REDIS_PASSWORD'),
+          db: configService.get('RATE_LIMIT_REDIS_DB', 0),
+        },
       }),
     }),
     AuthModule,
